@@ -7,6 +7,11 @@ const createStore = () => {
         message: "Hello Vuex!",
       };
     },
+    mutations: {
+      updateMessage: function (state) {
+        state.message = "Updated!";
+      },
+    },
   });
 };
 
