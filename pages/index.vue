@@ -3,6 +3,7 @@
     <p>{{ message }}</p>
     <hr>
     <router-link to="/price">Price Page</router-link>
+    <router-link to="/axios">Axios Page</router-link>
   </section>
 </template>
  
