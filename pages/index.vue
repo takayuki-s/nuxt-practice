@@ -6,6 +6,7 @@
     <router-link to="/axios">Axios Page</router-link>
     <router-link to="/image">Image Page</router-link>
     <router-link to="/store">Store Page</router-link>
+    <router-link to="/counter">Counter Page</router-link>
   </section>
 </template>
  
