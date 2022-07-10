@@ -14,10 +14,9 @@
 
 <script>
 const axios = require('axios')
-let url = 'https://jsonplaceholder.typicode.com/usersx'
 export default {
   asyncData({ params, error }) {
-    return axios.get(url).then((res) => {
+    return axios.get(process.env.USERS_URL).then((res) => {
       return { users: res.data }
     })
     .catch((e => {
