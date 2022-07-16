@@ -1,5 +1,6 @@
 import firebase from "../plugins/firebase";
 import { firestoreAction } from "vuexfire";
+import { sortBy } from "lodash";
 
 const db = firebase.firestore();
 const todosRef = db.collection("todos");
@@ -29,4 +30,10 @@ export const actions = {
       done: !todo.done,
     });
   }),
+};
+
+export const getters = {
+  orderedTodos: (state) => {
+    return sortBy(state.todos, "created");
+  },
 };
