@@ -18,6 +18,12 @@
         {{ data }}
       </li>
     </ul>
+    <p>filteredArray重複削除</p>
+    <ul>
+      <li  v-for="data in filterArray(dataArray)" :key="data.id">
+        {{ data }}
+      </li>
+    </ul>
   </div>
 </template>
 
@@ -50,6 +56,11 @@ export default {
       const result = _.unionBy(dataArray, 'code');
       return result
     },
+    filterArray(dataArray) {
+      const result = Array.from(new Map(dataArray.map(data => [data.code, data])).values())
+      // const result = new Map(dataArray.map(data => [data.code, data])).values() // こっちはMapIteratorになる
+      return result
+    } 
   }
 }
 </script>
