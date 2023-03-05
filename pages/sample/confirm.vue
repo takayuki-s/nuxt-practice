@@ -32,11 +32,20 @@
               </button>
             </li>
             <li class="w-2/4 pl-3">
-              <nuxt-link
+              <button
+                v-if="inquiry"
                 to="/contact/complete"
                 class="block bg-pink rounded-md text-white text-center text-sm leading-9 w-full"
-                >送信</nuxt-link
+                @click="sendMail"
               >
+                送信
+              </button>
+              <button
+                v-else
+                class="block bg-pink-200 rounded-md text-white text-center text-sm leading-9 w-full cursor-not-allowed"
+              >
+                送信
+              </button>
             </li>
           </ul>
         </div>
@@ -46,25 +55,68 @@
 </template>
 
 <script setup>
+import { ref, onMounted } from "vue";
+import { useRouter } from "vue-router";
+import { useContactStore } from "~/store/contact";
+
+const router = useRouter();
+const store = useContactStore();
+
 definePageMeta({
   layout: "default-template",
 });
 
-const contactInfo = [
-  { heading: "会社名", content: "test corporation" },
-  { heading: "お名前", content: "test name" },
-  { heading: "お名前(フリガナ)", content: "test name kana" },
-  { heading: "郵便番号", content: "〒1231234" },
-  { heading: "住所", content: "test address" },
-  { heading: "電話番号", content: "090-1234-1234" },
-  { heading: "メールアドレス", content: "test@test.com" },
-  {
-    heading: "お問い合わせ内容",
-    content: "",
-    isRequired: true,
-    isInquiry: true,
-  },
-];
+const contactInfo = ref([]);
+const inquiry = ref("");
+
+const userData = computed(() => {
+  return store.getUserData;
+});
+
+const setContactInfo = () => {
+  contactInfo.value = [
+    { heading: "会社名", content: userData.value.user_entered_company_name },
+    {
+      heading: "お名前",
+      content: `${userData.value.name_sei} ${userData.value.name_mei}`,
+    },
+    {
+      heading: "お名前(フリガナ)",
+      content: `${userData.value.name_sei_kana} ${userData.value.name_mei_kana}`,
+    },
+    { heading: "郵便番号", content: `〒${userData.value.zip_code}` },
+    {
+      heading: "住所",
+      content: `${userData.value.address1} ${userData.value.address2}`,
+    },
+    { heading: "電話番号", content: userData.value.tel },
+    { heading: "メールアドレス", content: userData.value.email },
+    {
+      heading: "お問い合わせ内容",
+      content: inquiry.value,
+      isRequired: true,
+      isInquiry: true,
+    },
+  ];
+};
+
+const sendMail = () => {
+  store
+    .sendMail(inquiry.value)
+    .then(() => {
+      router.push("/contact/complete");
+    })
+    .catch((error) => {
+      console.log(error);
+      alert("メール送信に失敗しました。もう一度お試しください。");
+    });
+};
+
+onMounted(async () => {
+  await store.fetchUserData();
+  inquiry.value = store.getInquiry;
+  setContactInfo();
+});
 </script>
 
 <style lang="scss" scoped>

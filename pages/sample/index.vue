@@ -29,6 +29,7 @@
               </th>
               <td v-if="item.isInquiry" class="block w-full text-gray-700">
                 <textarea
+                  v-model="inquiry"
                   class="h-28 w-full mt-3.5 py-2 px-3 border-gray-300 rounded-md border-gray-300 focus:outline-none focus:ring-gray-300 focus:border-transparent"
                   placeholder="お問い合わせ内容"
                 ></textarea>
@@ -49,8 +50,17 @@
             </li>
             <li class="w-2/4 pl-3">
               <nuxt-link
+                v-if="inquiry"
                 to="/contact/confirm"
                 class="block w-full text-sm leading-9 text-center text-white rounded-md bg-pink"
+                @click="saveInquiry"
+                >確認ページへ</nuxt-link
+              >
+              <nuxt-link
+                v-else
+                to="/contact"
+                class="block w-full text-sm leading-9 text-center text-white rounded-md bg-pink-200 cursor-not-allowed"
+                @click="saveInquiry"
                 >確認ページへ</nuxt-link
               >
             </li>
@@ -62,25 +72,58 @@
 </template>
 
 <script setup>
-definePageMeta({
-  layout: "default-template",
-});
+import { ref, onMounted } from 'vue'
+import { useContactStore } from '~/store/contact'
 
-const contactInfo = [
-  { heading: "会社名", content: "test corporation" },
-  { heading: "お名前", content: "test name" },
-  { heading: "お名前(フリガナ)", content: "test name kana" },
-  { heading: "郵便番号", content: "〒1231234" },
-  { heading: "住所", content: "test address" },
-  { heading: "電話番号", content: "090-1234-1234" },
-  { heading: "メールアドレス", content: "test@test.com" },
-  {
-    heading: "お問い合わせ内容",
-    content: "",
-    isRequired: true,
-    isInquiry: true,
-  },
-];
+const store = useContactStore()
+
+definePageMeta({
+  layout: 'default-template',
+})
+
+const contactInfo = ref([])
+const inquiry = ref('')
+
+const userData = computed(() => {
+  return store.getUserData
+})
+
+const setContactInfo = () => {
+  contactInfo.value = [
+    { heading: '会社名', content: userData.value.user_entered_company_name },
+    {
+      heading: 'お名前',
+      content: `${userData.value.name_sei} ${userData.value.name_mei}`,
+    },
+    {
+      heading: 'お名前(フリガナ)',
+      content: `${userData.value.name_sei_kana} ${userData.value.name_mei_kana}`,
+    },
+    { heading: '郵便番号', content: `〒${userData.value.zip_code}` },
+    {
+      heading: '住所',
+      content: `${userData.value.address1} ${userData.value.address2}`,
+    },
+    { heading: '電話番号', content: userData.value.tel },
+    { heading: 'メールアドレス', content: userData.value.email },
+    {
+      heading: 'お問い合わせ内容',
+      content: '',
+      isRequired: true,
+      isInquiry: true,
+    },
+  ]
+}
+
+const saveInquiry = () => {
+  store.saveInquiry(inquiry.value)
+}
+
+onMounted(async () => {
+  await store.fetchUserData()
+  inquiry.value = store.getInquiry
+  setContactInfo()
+})
 </script>
 
 <style lang="scss" scoped>
